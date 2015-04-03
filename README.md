@@ -16,12 +16,12 @@ Support for PHP based login will be implemented in the future. Pull requests are
 - [Composer](https://getcomposer.org/)
 
 ## Installation
-1. Download the library files and add the files to your CodeIgniter installation. Only the library and config files are required.
+1. Download the library files and add the files to your CodeIgniter installation. Only the library, config and composer.json files are required.
 1. In CodeIgniter `/application/config/config.php` set `$config['composer_autoload']` to `TRUE`.
 2. In CodeIgniter `/application/config/config.php`, configure the `Session Variables`.
 3. Update the `facebook.php` config file in `/application/config/facebook.php` with you Facebook App details.
 4. Install the Facebook PHP SDK by navigating to your applications folder and execute `composer install`.
-6. Autoload the library in `autoload.php` or load in needed controllers with `$this->load->library('facebook');`.
+6. Autoload the library in `autoload.php` or load it in needed controllers with `$this->load->library('facebook');`.
 5. Enjoy!
 
 ## Usage
