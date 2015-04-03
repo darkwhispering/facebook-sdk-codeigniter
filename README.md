@@ -48,14 +48,14 @@ $this->facebook->user();
 *Requires user has approved `read_stream` permission*
 ```php
 /**
-    * Get single post
-    *
-    * Requires: read_stream
-    *
-    * @param   int    Post ID
-    *
-    * @return  array  Return post data
-    **/
+* Get single post
+*
+* Requires: read_stream
+*
+* @param   int    Post ID
+*
+* @return  array  Return post data
+**/
 $this->facebook->get_post($post_id);
 ```
 
@@ -63,46 +63,46 @@ $this->facebook->get_post($post_id);
 *Requires user has approved `publish_actions` permission*
 ```php
 /**
-    * Publish a post to the users feed
-    *
-    * Requires: publish_actions
-    *
-    * @param   string  Message to publish
-    *
-    * @return  int     ID of the created post on success
-    **/
+* Publish a post to the users feed
+*
+* Requires: publish_actions
+*
+* @param   string  Message to publish
+*
+* @return  int     ID of the created post on success
+**/
 $this->facebook->publish_text($message);
 ```
 
 #### Publish a video to users wall
 ```php
 /**
-    * Publish a video to the users feed
-    *
-    * Requires: publish_actions
-    *
-    * @param   string  URL to file
-    * @param   string  Video description text
-    * @param   string  Video title text
-    *
-    * @return  int     ID of published video on success
-    **/
+* Publish a video to the users feed
+*
+* Requires: publish_actions
+*
+* @param   string  URL to file
+* @param   string  Video description text
+* @param   string  Video title text
+*
+* @return  int     ID of published video on success
+**/
 $this->facebook->publish_video($file, $description, $title);
 ```
 
 #### Publish a image to users wall
 ```php
 /**
-    * Publish image to users feed
-    * Supports externally hosted images only! No direct upload
-    * to Facebook.com albums.
-    *
-    * Requires: publish_actions
-    *
-    * @param   string  URL to image
-    * @param   string  Image description text
-    *
-    * @return  int     ID of the published image on success
-    **/
+* Publish image to users feed
+* Supports externally hosted images only! No direct upload
+* to Facebook.com albums.
+*
+* Requires: publish_actions
+*
+* @param   string  URL to image
+* @param   string  Image description text
+*
+* @return  int     ID of the published image on success
+**/
 $this->facebook->publish_image($image, $message);
 ```
