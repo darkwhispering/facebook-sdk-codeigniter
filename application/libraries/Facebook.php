@@ -28,6 +28,7 @@
 use Facebook\FacebookSession;
 use Facebook\FacebookRedirectLoginHelper;
 use Facebook\FacebookJavaScriptLoginHelper;
+use Facebook\FacebookCanvasLoginHelper;
 use Facebook\FacebookRequest;
 use Facebook\FacebookResponse;
 use Facebook\FacebookSDKException;
@@ -58,6 +59,15 @@ Class Facebook {
         // Init the Facebook SDK
         FacebookSession::setDefaultApplication($app_id, $app_secret);
 
+        if ($this->config->item('facebook_login_type') == 'js')
+        {
+            $this->helper = new FacebookJavaScriptLoginHelper();
+        }
+        else if ($this->config->item('facebook_login_type') == 'web')
+        {
+            $this->helper = new FacebookRedirectLoginHelper($this->config->item('facebook_login_redirect_url'));
+        }
+
         // Create session right away if we have one
         $this->facebook_session();
 
@@ -82,6 +92,66 @@ Class Facebook {
 
         // No session found
         return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Get login url
+     *
+     * @return  string
+     */
+    public function login_url()
+    {
+
+        if ($this->config->item('facebook_login_type') != 'web')
+        {
+            return '';
+        }
+
+        // Create login url
+        $url = $this->helper->getLoginUrl($this->config->item('facebook_permissions'));
+
+        // Return login url
+        return $url;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Get logout url
+     *
+     * @return  string
+     */
+    public function logout_url()
+    {
+
+        // Get users facebook session
+        $session = $this->facebook_session();
+
+        // Redirect helper and session must exists to get logout url
+        if (!isset($this->helper) OR !isset($session) OR $this->config->item('facebook_login_type') !== 'web')
+        {
+            return '';
+        }
+
+        // Create logout url
+        $url = $this->helper->getLogoutUrl($session, $this->config->item('facebook_logout_redirect_url'));
+
+        // Return logout url
+        return $url;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Destroy the session
+     *
+     * @return  string
+     */
+    public function destroy_session()
+    {
+        $this->session->unset_userdata('fb_token');
     }
 
     // ------------------------------------------------------------------------
@@ -113,7 +183,6 @@ Class Facebook {
             {
                 // Log error
                 log_message('error', '[FACEBOOK PHP SDK - User ID] code: ' . $e->getCode().' | message: '.$e->getMessage());
-
                 return null;
             }
         }
@@ -270,11 +339,11 @@ Class Facebook {
     // ------------------------------------------------------------------------
 
     /**
-    * Publish a video to the users feed
+    * Publish (upload) a video to the users feed
     *
     * Requires: publish_actions
     *
-    * @param   string  URL to file
+    * @param   string  Path to video file
     * @param   string  Video description text
     * @param   string  Video title text
     *
@@ -417,23 +486,28 @@ Class Facebook {
     **/
     private function get_new_session()
     {
-        // Load FB javscript login helper
-        $js_helper = new FacebookJavaScriptLoginHelper();
 
         try
         {
             // Get session from JS SDK
-            $session = $js_helper->getSession();
+            if ($this->config->item('facebook_login_type') === TRUE)
+            {
+                $session = $this->helper->getSession();
+            }
+            else
+            {
+                $session = $this->helper->getSessionFromRedirect();
+            }
         }
         catch (FacebookRequestException $e)
         {
             // Log error
-            log_message('error', '[FACEBOOK PHP SDK - Get session 1] code: ' . $e->getCode().' | message: '.$e->getMessage());
+            log_message('error', '[FACEBOOK PHP SDK - JS Helper get session 1] code: ' . $e->getCode().' | message: '.$e->getMessage());
         }
         catch (Exception $e)
         {
             // Log error
-            log_message('error', '[FACEBOOK PHP SDK - Get session 2] code: ' . $e->getCode().' | message: '.$e->getMessage());
+            log_message('error', '[FACEBOOK PHP SDK - JS Helper get session 2] code: ' . $e->getCode().' | message: '.$e->getMessage());
         }
 
         // If we got a session we need to exchange it for

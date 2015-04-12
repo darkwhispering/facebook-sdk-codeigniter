@@ -97,6 +97,9 @@
 <div id="status">
 </div>
 
+<p><a href="<?php echo $this->facebook->login_url(); ?>">Redirect login</a></p>
+<p><a href="<?php echo $this->facebook->logout_url(); ?>">Redirect logout</a></p>
+
 <p><?php echo 'Facebook User ID:' . $user_id; ?></p>
 <p>
   <?php echo 'Facebook User details:';
