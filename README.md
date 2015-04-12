@@ -8,6 +8,7 @@ Items to complete before release of version 2.0.0
 - Updated resposne data to include success/error code and message
 - Add contribute information
 - Create different example views for web and JS login
+- Update readme with new methods
 
 ## Requirements
 - PHP 5.4+
