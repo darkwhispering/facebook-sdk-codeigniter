@@ -1,19 +1,23 @@
-# facebook-sdk-v4-codeigniter
+# Facebook PHP SDK v4 for CodeIgniter
 Library for integration of Facebook PHP SDK v4 with CodeIgniter 3+
 
-**Version:** 1.1.0
+**Version:** 2.0.0
 
-## Limitations
-Due to that I mostly used this library for backend APIs that needed to check for a valid Facebook session, the library currently only works togheter with the Facebook Javascript SDK for login atm.
-
-Support for PHP based login will be implemented in the future. Pull requests are welcome if anyone has the time before I do.
+#### TO DO
+Items to complete before release of version 2.0.0
+- Updated resposne data to include success/error code and message
+- Add contribute information
+- Create different example views for web and JS login
 
 ## Requirements
 - PHP 5.4+
-- [CodeIgniter 3+](http://www.codeigniter.com/)
+- [CodeIgniter 3](http://www.codeigniter.com/)
 - CodeIgniter session library
-- [Facebook PHP SDK v4+](https://packagist.org/packages/facebook/php-sdk-v4)
+- [Facebook PHP SDK v4](https://packagist.org/packages/facebook/php-sdk-v4)
 - [Composer](https://getcomposer.org/)
+
+## Notice
+Facebook Canvas support is experimental as I have not been able to test or confirm it working. If you test it, please report back if you had success or failure. Thanks.
 
 ## Installation
 1. Download the library files and add the files to your CodeIgniter installation. Only the library, config and composer.json files are required.
@@ -34,13 +38,13 @@ $this->facebook->logged_in();
 
 #### Check user ID
 ```php
-// Get users ID. Return int
+// Get users ID. Returns int
 $this->facebook->user_id();
 ```
 
 #### Check user details
 ```php
-// Get userse details. Return array
+// Get userse details. Returns array
 $this->facebook->user();
 ```
 
@@ -54,7 +58,7 @@ $this->facebook->user();
     *
     * @param   int    Post ID
     *
-    * @return  array  Return post data
+    * @return  array
     **/
 $this->facebook->get_post($post_id);
 ```
@@ -69,7 +73,7 @@ $this->facebook->get_post($post_id);
     *
     * @param   string  Message to publish
     *
-    * @return  int     ID of the created post on success
+    * @return  int
     **/
 $this->facebook->publish_text($message);
 ```
@@ -81,11 +85,11 @@ $this->facebook->publish_text($message);
     *
     * Requires: publish_actions
     *
-    * @param   string  URL to file
+    * @param   string  Path to video file
     * @param   string  Video description text
     * @param   string  Video title text
     *
-    * @return  int     ID of published video on success
+    * @return  int
     **/
 $this->facebook->publish_video($file, $description, $title);
 ```
@@ -102,7 +106,7 @@ $this->facebook->publish_video($file, $description, $title);
     * @param   string  URL to image
     * @param   string  Image description text
     *
-    * @return  int     ID of the published image on success
+    * @return  int
     **/
 $this->facebook->publish_image($image, $message);
 ```

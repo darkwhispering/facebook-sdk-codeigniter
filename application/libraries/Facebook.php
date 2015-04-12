@@ -1,30 +1,26 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
-* Name:  Facebook PHP SDK 4+ Library for CodeIgniter 3+
-*
-* Version: 1.1.0
-*
-* Author: Mattias Hedman
-*         hedman.mattias.90@gmail.com
-*         @silentium90
-*
-* Added Awesomeness: To all internet guides and stackoverflow
-*
-* Created: 2014-05-27
-* Updated: 2015-04-03
-*
-* Description: Custom made library for Facebook PHP SDK 4+ for easy check of login status
-* and more without the need to include the SDK in every controller or model.
-*
-* Requirements:
-*   - PHP 5.4 or above
-*   - Facebook PHP SDK 4+ installed with composer
-*   - CodeIgniter 3+
-*   - CodeIgniter session library
-*
-**/
+ * Facebook PHP SDK v4 for CodeIgniter 3
+ *
+ * Library wrapper for Facebook PHP SDK v4. Check user login status, publish to feed
+ * and more with easy to user CodeIgniter syntax.
+ *
+ * This library requires that Facebook PHP SDK v4 is installed with composer, and that CodeIgniter
+ * config is set to autoload the vendor folder. More information in the CodeIgniter user guide at
+ * http://www.codeigniter.com/userguide3/general/autoloader.html?highlight=composer
+ *
+ * It also requires CodeIgniter session library to be correctly configured.
+ *
+ * @package     CodeIgniter
+ * @category    Libraries
+ * @author      Mattias Hedman
+ * @license     MIT
+ * @link        https://github.com/darkwhispering/facebook-sdk-v4-codeigniter
+ * @version     2.0.0
+ */
 
+// Load all required Facebook classes
 use Facebook\FacebookSession;
 use Facebook\FacebookRedirectLoginHelper;
 use Facebook\FacebookJavaScriptLoginHelper;
@@ -43,46 +39,62 @@ use Facebook\FacebookCurlHttpClient;
 
 Class Facebook {
 
+    /**
+     * Facebook login helper
+     *
+     * @var object
+     */
+    protected $helper;
+
+    // ------------------------------------------------------------------------
+
     public function __construct()
     {
-
         // Load config
         $this->load->config('facebook');
 
         // Load required libraries
         $this->load->library('session');
 
-        // Get config settings
+        // App id and secret
         $app_id     = $this->config->item('facebook_app_id');
         $app_secret = $this->config->item('facebook_app_secret');
 
-        // Init the Facebook SDK
+        // Initiate the Facebook SDK
         FacebookSession::setDefaultApplication($app_id, $app_secret);
 
+        // Load correct helper depending or login type
+        // that is set in the config
         if ($this->config->item('facebook_login_type') == 'js')
         {
+            // Javascript helper
             $this->helper = new FacebookJavaScriptLoginHelper();
+        }
+        else if ($this->config->item('facebook_login_type') == 'canvas')
+        {
+            // Canvas helper
+            $this->helper = new FacebookCanvasLoginHelper();
         }
         else if ($this->config->item('facebook_login_type') == 'web')
         {
+            // Web helper (redirect)
             $this->helper = new FacebookRedirectLoginHelper($this->config->item('facebook_login_redirect_url'));
         }
 
         // Create session right away if we have one
         $this->facebook_session();
-
     }
 
     // ------------------------------------------------------------------------
 
     /**
-    * Return true/false if user is logged in with Facebook
+    * Check if user are logged in by checking if we have a Facebook
+    * session active.
     *
-    * @return  boolen  Returns true/false if FB sessions is found
+    * @return  bool
     **/
     public function logged_in()
     {
-
         // Check if we have an active Facebook session
         if ($this->facebook_session())
         {
@@ -97,13 +109,13 @@ Class Facebook {
     // ------------------------------------------------------------------------
 
     /**
-     * Get login url
+     * Generate Facebook login url for Facebook Redirect Login (web)
      *
      * @return  string
      */
     public function login_url()
     {
-
+        // Login type must be web, else return empty string
         if ($this->config->item('facebook_login_type') != 'web')
         {
             return '';
@@ -119,18 +131,24 @@ Class Facebook {
     // ------------------------------------------------------------------------
 
     /**
-     * Get logout url
+     * Generate Facebook login url for Facebook Redirect Login (web)
      *
      * @return  string
      */
     public function logout_url()
     {
+        // Login type must be web, else return empty string
+        if ($this->config->item('facebook_login_type') != 'web')
+        {
+            return '';
+        }
 
         // Get users facebook session
         $session = $this->facebook_session();
 
-        // Redirect helper and session must exists to get logout url
-        if (!isset($this->helper) OR !isset($session) OR $this->config->item('facebook_login_type') !== 'web')
+        // Can't generate link if we don't have a loaded helper
+        // and active session
+        if ( ! isset($this->helper) && ! isset($session))
         {
             return '';
         }
@@ -145,12 +163,13 @@ Class Facebook {
     // ------------------------------------------------------------------------
 
     /**
-     * Destroy the session
+     * Destroy out Facebook token
      *
      * @return  string
      */
     public function destroy_session()
     {
+        // Remove our Facebook token from session
         $this->session->unset_userdata('fb_token');
     }
 
@@ -159,13 +178,17 @@ Class Facebook {
     /**
     * Get user ID
     *
-    * @return  int  Returns user facebook ID
+    * @return  int
     **/
     public function user_id()
     {
+
+        // TODO: Update response to include success/error codes and messages
+
         // Get users facebook session
         $session = $this->facebook_session();
 
+        // Continue only if we have a session
         if ($session)
         {
             try
@@ -183,26 +206,30 @@ Class Facebook {
             {
                 // Log error
                 log_message('error', '[FACEBOOK PHP SDK - User ID] code: ' . $e->getCode().' | message: '.$e->getMessage());
-                return null;
+                return NULL;
             }
         }
 
-        return null;
+        return NULL;
     }
 
     // ------------------------------------------------------------------------
 
 
     /**
-    * Get all user details, current token and accepted permissions list
+    * Get all user details and accepted permissions list
     *
-    * @return  array  Returns user data
+    * @return  array
     **/
     public function user()
     {
+
+        // TODO: Update response to include success/error codes and messages
+
         // Get users facebook session
         $session = $this->facebook_session();
 
+        // Continue only if we have a session
         if ($session)
         {
             try
@@ -212,9 +239,6 @@ Class Facebook {
                     ->execute()
                     ->getGraphObject()
                     ->asArray();
-
-                // Get users Facebook token from session
-                $user['token'] = $this->session->userdata('fb_token');
 
                 // Get users permissions list
                 $user['permissions'] = (new FacebookRequest($session, 'GET', '/me/permissions'))
@@ -229,7 +253,6 @@ Class Facebook {
             {
                 // Log error
                 log_message('error', '[FACEBOOK PHP SDK - User] code: ' . $e->getCode().' | message: '.$e->getMessage());
-
                 return array();
             }
         }
@@ -240,25 +263,29 @@ Class Facebook {
     // ------------------------------------------------------------------------
 
     /**
-    * Get single post
+    * Retrieve a single post from users wall
     *
-    * Requires: read_stream
+    * Required permission: read_stream
     *
     * @param   int    Post ID
     *
-    * @return  array  Return post data
+    * @return  array
     **/
-    public function get_post($id = null)
+    public function get_post($id = NULL)
     {
+
+        // TODO: Update response to include success/error codes and messages
+
         // ID required, exit if not provided
-        if (!$id)
+        if ( ! $id)
         {
-            return null;
+            return array();
         }
 
         // Get users facebook session
         $session = $this->facebook_session();
 
+        // Continue only if we have a session
         if ($session)
         {
             try
@@ -276,12 +303,11 @@ Class Facebook {
             {
                 // Log error
                 log_message('error', '[FACEBOOK PHP SDK - Get post] code: ' . $e->getCode().' | message: '.$e->getMessage());
-
-                return null;
+                return array();
             }
         }
 
-        return null;
+        return array();
     }
 
     // ------------------------------------------------------------------------
@@ -289,30 +315,34 @@ Class Facebook {
     /**
     * Publish a post to the users feed
     *
-    * Requires: publish_actions
+    * Required permission: publish_actions
     *
     * @param   string  Message to publish
     *
-    * @return  int     ID of the created post on success
+    * @return  int
     **/
     public function publish_text($message = '')
     {
+
+        // TODO: Update response to include success/error codes and messages
+
         // Get user facebook session
         $session = $this->facebook_session();
 
+        // Continue only if we have a session
         if ($session)
         {
             try
             {
                 // Publish post
-                $response = (new FacebookRequest(
-                    $session,
-                    'POST',
-                    '/me/feed',
-                    array(
-                        'message' => $message
-                    )
-                ))->execute()->getGraphObject()->asArray();
+                $response = (new FacebookRequest($session, 'POST', '/me/feed',
+                        array(
+                            'message' => $message
+                        )
+                    ))
+                    ->execute()
+                    ->getGraphObject()
+                    ->asArray();
 
                 // Return post ID
                 return $response['id'];
@@ -328,11 +358,11 @@ Class Facebook {
                     return 'duplicate';
                 }
 
-                return null;
+                return NULL;
             }
         }
 
-        return null;
+        return NULL;
 
     }
 
@@ -341,16 +371,19 @@ Class Facebook {
     /**
     * Publish (upload) a video to the users feed
     *
-    * Requires: publish_actions
+    * Required permission: publish_actions
     *
     * @param   string  Path to video file
     * @param   string  Video description text
     * @param   string  Video title text
     *
-    * @return  int     ID of published video on success
+    * @return  int
     **/
     public function publish_video($file = '', $description = '', $title = '')
     {
+
+        // TODO: Update response to include success/error codes and messages
+
         // Get users facebook session
         $session = $this->facebook_session();
 
@@ -359,16 +392,16 @@ Class Facebook {
             try
             {
                 // Publish video
-                $response = (new FacebookRequest(
-                    $session,
-                    'POST',
-                    '/me/videos',
-                    array(
-                        'description' => $description,
-                        'title'       => $title,
-                        'source'      => '@'.$file
-                    )
-                ))->execute()->getGraphObject()->asArray();
+                $response = (new FacebookRequest($session, 'POST', '/me/videos',
+                        array(
+                            'description' => $description,
+                            'title'       => $title,
+                            'source'      => '@'.$file
+                        )
+                    ))
+                    ->execute()
+                    ->getGraphObject()
+                    ->asArray();
 
                 // Return video ID
                 return $response['id'];
@@ -378,29 +411,33 @@ Class Facebook {
                 // Log error
                 log_message('error', '[FACEBOOK PHP SDK - Publish text] code: ' . $e->getCode().' | message: '.$e->getMessage());
 
-                return null;
+                return NULL;
             }
         }
 
-        return null;
+        return NULL;
     }
 
     // ------------------------------------------------------------------------
 
     /**
     * Publish image to users feed
-    * Supports externally hosted images only! No direct upload
-    * to Facebook.com albums.
     *
-    * Requires: publish_actions
+    * Supports externally hosted images only! No direct upload
+    * to Facebook.com albums at this time.
+    *
+    * Required permission: publish_actions
     *
     * @param   string  URL to image
     * @param   string  Image description text
     *
-    * @return  int     ID of the published image on success
+    * @return  int
     **/
     public function publish_image($image = '', $message = '')
     {
+
+        // TODO: Update response to include success/error codes and messages
+
         // Get users facebook session
         $session = $this->facebook_session();
 
@@ -409,15 +446,15 @@ Class Facebook {
             try
             {
                 // Publish image
-                $response = (new FacebookRequest(
-                    $session,
-                    'POST',
-                    '/me/photos',
-                    array(
-                        'url'     => $image,
-                        'message' => $message
-                    )
-                ))->execute()->getGraphObject()->asArray();
+                $response = (new FacebookRequest($session, 'POST', '/me/photos',
+                        array(
+                            'url'     => $image,
+                            'message' => $message
+                        )
+                    ))
+                    ->execute()
+                    ->getGraphObject()
+                    ->asArray();
 
                 // Return image ID
                 return $response['id'];
@@ -426,12 +463,11 @@ Class Facebook {
             {
                 // Log error
                 log_message('error', '[FACEBOOK PHP SDK - Publish media] code: ' . $e->getCode().' | message: '.$e->getMessage());
-
-                return null;
+                return NULL;
             }
         }
 
-        return null;
+        return NULL;
     }
 
     // ------------------------------------------------------------------------
@@ -446,13 +482,15 @@ Class Facebook {
     private function facebook_session()
     {
 
+        // TODO: Update response to include success/error codes and messages
+
         // Check if our own session token exists
         if ($this->session->userdata('fb_token'))
         {
             // Create new session for the token
             $session = new FacebookSession($this->session->userdata('fb_token'));
 
-            // validate the access_token to make sure it's still valid
+            // validate the access token to make sure it's still valid
             try
             {
                 if (!$session->validate())
@@ -486,14 +524,15 @@ Class Facebook {
     **/
     private function get_new_session()
     {
-
         try
         {
-            // Get session from JS SDK
-            if ($this->config->item('facebook_login_type') === TRUE)
+            // Get session from JS or Canvas helper
+            if ($this->config->item('facebook_login_type') == 'js' OR $this->config->item('facebook_login_type') == 'canvas')
             {
                 $session = $this->helper->getSession();
             }
+
+            // Get session for redirect (web)
             else
             {
                 $session = $this->helper->getSessionFromRedirect();
@@ -502,12 +541,12 @@ Class Facebook {
         catch (FacebookRequestException $e)
         {
             // Log error
-            log_message('error', '[FACEBOOK PHP SDK - JS Helper get session 1] code: ' . $e->getCode().' | message: '.$e->getMessage());
+            log_message('error', '[FACEBOOK PHP SDK - Get session FacebookRequestException] code: ' . $e->getCode().' | message: '.$e->getMessage());
         }
         catch (Exception $e)
         {
             // Log error
-            log_message('error', '[FACEBOOK PHP SDK - JS Helper get session 2] code: ' . $e->getCode().' | message: '.$e->getMessage());
+            log_message('error', '[FACEBOOK PHP SDK - Get session Exception] code: ' . $e->getCode().' | message: '.$e->getMessage());
         }
 
         // If we got a session we need to exchange it for
@@ -528,7 +567,7 @@ Class Facebook {
         }
 
         // Could not get a session, so return null
-        return null;
+        return NULL;
     }
 
     /**
