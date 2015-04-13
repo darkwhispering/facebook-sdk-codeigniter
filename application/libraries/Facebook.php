@@ -53,8 +53,9 @@ Class Facebook {
         // Load config
         $this->load->config('facebook');
 
-        // Load required libraries
+        // Load required libraries and helpers
         $this->load->library('session');
+        $this->load->helper('url');
 
         // App id and secret
         $app_id     = $this->config->item('facebook_app_id');
@@ -78,7 +79,7 @@ Class Facebook {
         else if ($this->config->item('facebook_login_type') == 'web')
         {
             // Web helper (redirect)
-            $this->helper = new FacebookRedirectLoginHelper($this->config->item('facebook_login_redirect_url'));
+            $this->helper = new FacebookRedirectLoginHelper(base_url() . $this->config->item('facebook_login_redirect_url'));
         }
 
         // Create session right away if we have one
@@ -154,7 +155,7 @@ Class Facebook {
         }
 
         // Create logout url
-        $url = $this->helper->getLogoutUrl($session, $this->config->item('facebook_logout_redirect_url'));
+        $url = $this->helper->getLogoutUrl($session, base_url() . $this->config->item('facebook_logout_redirect_url'));
 
         // Return logout url
         return $url;
@@ -178,13 +179,10 @@ Class Facebook {
     /**
     * Get user ID
     *
-    * @return  int
+    * @return  array
     **/
     public function user_id()
     {
-
-        // TODO: Update response to include success/error codes and messages
-
         // Get users facebook session
         $session = $this->facebook_session();
 
@@ -199,18 +197,20 @@ Class Facebook {
                     ->getGraphObject()
                     ->asArray();
 
-                // Return ID
-                return $user['id'];
+                // Return data
+                return $this->response(200, 'success', array('user_id' => $user['id']));
             }
             catch(FacebookRequestException $e)
             {
-                // Log error
-                log_message('error', '[FACEBOOK PHP SDK - User ID] code: ' . $e->getCode().' | message: '.$e->getMessage());
-                return NULL;
+                // Log error as debug
+                log_message('debug', '[FACEBOOK PHP SDK - User ID] code: ' . $e->getCode().' | message: '.$e->getMessage());
+
+                // Return error
+                return $this->response($e->getCode(), $e->getMessage());
             }
         }
 
-        return NULL;
+        return $this->response(463, 'Expired');
     }
 
     // ------------------------------------------------------------------------
@@ -223,9 +223,6 @@ Class Facebook {
     **/
     public function user()
     {
-
-        // TODO: Update response to include success/error codes and messages
-
         // Get users facebook session
         $session = $this->facebook_session();
 
@@ -247,17 +244,19 @@ Class Facebook {
                     ->asArray();
 
                 // Return data
-                return $user;
+                return $this->response(200, 'success', $user);
             }
             catch(FacebookRequestException $e)
             {
-                // Log error
-                log_message('error', '[FACEBOOK PHP SDK - User] code: ' . $e->getCode().' | message: '.$e->getMessage());
-                return array();
+                // Log error as debug
+                log_message('debug', '[FACEBOOK PHP SDK - User] code: ' . $e->getCode().' | message: '.$e->getMessage());
+
+                // Return error
+                return $this->response($e->getCode(), $e->getMessage());
             }
         }
 
-        return array();
+        return $this->response(463, 'Expired');
     }
 
     // ------------------------------------------------------------------------
@@ -267,15 +266,12 @@ Class Facebook {
     *
     * Required permission: read_stream
     *
-    * @param   int    Post ID
+    * @param   int     $id   Post ID
     *
     * @return  array
     **/
     public function get_post($id = NULL)
     {
-
-        // TODO: Update response to include success/error codes and messages
-
         // ID required, exit if not provided
         if ( ! $id)
         {
@@ -297,17 +293,19 @@ Class Facebook {
                     ->asArray();
 
                 // Return post data
-                return $post;
+                return $this->response(200, 'success', $post);
             }
             catch(FacebookRequestException $e)
             {
-                // Log error
-                log_message('error', '[FACEBOOK PHP SDK - Get post] code: ' . $e->getCode().' | message: '.$e->getMessage());
-                return array();
+                // Log error as debug
+                log_message('debug', '[FACEBOOK PHP SDK - Get post] code: ' . $e->getCode().' | message: '.$e->getMessage());
+
+                // Return error
+                return $this->response($e->getCode(), $e->getMessage());
             }
         }
 
-        return array();
+        return $this->response(463, 'Expired');
     }
 
     // ------------------------------------------------------------------------
@@ -317,15 +315,12 @@ Class Facebook {
     *
     * Required permission: publish_actions
     *
-    * @param   string  Message to publish
+    * @param   string  $message  Message to publish
     *
-    * @return  int
+    * @return  array
     **/
     public function publish_text($message = '')
     {
-
-        // TODO: Update response to include success/error codes and messages
-
         // Get user facebook session
         $session = $this->facebook_session();
 
@@ -344,25 +339,20 @@ Class Facebook {
                     ->getGraphObject()
                     ->asArray();
 
-                // Return post ID
-                return $response['id'];
+                // Return data
+                return $this->response(200, 'success', array('post_id' => $response['id']));
             }
             catch(FacebookRequestException $e)
             {
-                // Log error
-                log_message('error', '[FACEBOOK PHP SDK - Publish text] code: ' . $e->getCode().' | message: '.$e->getMessage());
+                // Log error as debug
+                log_message('debug', '[FACEBOOK PHP SDK - Publish text] code: ' . $e->getCode().' | message: '.$e->getMessage());
 
-                // If error is specifically 506, return duplicate message
-                if ($e->getCode() == '506')
-                {
-                    return 'duplicate';
-                }
-
-                return NULL;
+                // Return error
+                return $this->response($e->getCode(), $e->getMessage());
             }
         }
 
-        return NULL;
+        return $this->response(463, 'Expired');
 
     }
 
@@ -373,17 +363,14 @@ Class Facebook {
     *
     * Required permission: publish_actions
     *
-    * @param   string  Path to video file
-    * @param   string  Video description text
-    * @param   string  Video title text
+    * @param   string  $file         Path to video file
+    * @param   string  $description  Video description text
+    * @param   string  $title        Video title text
     *
-    * @return  int
+    * @return  array
     **/
     public function publish_video($file = '', $description = '', $title = '')
     {
-
-        // TODO: Update response to include success/error codes and messages
-
         // Get users facebook session
         $session = $this->facebook_session();
 
@@ -403,19 +390,20 @@ Class Facebook {
                     ->getGraphObject()
                     ->asArray();
 
-                // Return video ID
-                return $response['id'];
+                // Return data
+                return $this->response(200, 'success', array('video_id' => $response['id']));
             }
             catch(FacebookRequestException $e)
             {
-                // Log error
-                log_message('error', '[FACEBOOK PHP SDK - Publish text] code: ' . $e->getCode().' | message: '.$e->getMessage());
+                // Log error as debug
+                log_message('debug', '[FACEBOOK PHP SDK - Publish video] code: ' . $e->getCode().' | message: '.$e->getMessage());
 
-                return NULL;
+                // Return error
+                return $this->response($e->getCode(), $e->getMessage());
             }
         }
 
-        return NULL;
+        return $this->response(463, 'Expired');
     }
 
     // ------------------------------------------------------------------------
@@ -428,16 +416,13 @@ Class Facebook {
     *
     * Required permission: publish_actions
     *
-    * @param   string  URL to image
-    * @param   string  Image description text
+    * @param   string  $image    URL to image
+    * @param   string  $message  Image description text
     *
-    * @return  int
+    * @return  array
     **/
     public function publish_image($image = '', $message = '')
     {
-
-        // TODO: Update response to include success/error codes and messages
-
         // Get users facebook session
         $session = $this->facebook_session();
 
@@ -457,17 +442,19 @@ Class Facebook {
                     ->asArray();
 
                 // Return image ID
-                return $response['id'];
+                return $this->response(200, 'success', array('image_id' => $response['id']));
             }
             catch(FacebookRequestException $e)
             {
-                // Log error
-                log_message('error', '[FACEBOOK PHP SDK - Publish media] code: ' . $e->getCode().' | message: '.$e->getMessage());
-                return NULL;
+                // Log error as debug
+                log_message('debug', '[FACEBOOK PHP SDK - Publish image] code: ' . $e->getCode().' | message: '.$e->getMessage());
+
+                // Return error
+                return $this->response($e->getCode(), $e->getMessage());
             }
         }
 
-        return NULL;
+        return $this->response(463, 'Expired');
     }
 
     // ------------------------------------------------------------------------
@@ -477,13 +464,10 @@ Class Facebook {
     * and get the session data from the Facebook cookie or
     * our current if it is still valid
     *
-    * @return  object  Facebook session object
+    * @return  object
     **/
     private function facebook_session()
     {
-
-        // TODO: Update response to include success/error codes and messages
-
         // Check if our own session token exists
         if ($this->session->userdata('fb_token'))
         {
@@ -520,7 +504,7 @@ Class Facebook {
     /**
     * Get a new session from Facebook
     *
-    * @return  object  Facebook session object
+    * @return  object
     **/
     private function get_new_session()
     {
@@ -540,13 +524,13 @@ Class Facebook {
         }
         catch (FacebookRequestException $e)
         {
-            // Log error
-            log_message('error', '[FACEBOOK PHP SDK - Get session FacebookRequestException] code: ' . $e->getCode().' | message: '.$e->getMessage());
+            // Log error as debug
+            log_message('debug', '[FACEBOOK PHP SDK - Get session FacebookRequestException] code: ' . $e->getCode().' | message: '.$e->getMessage());
         }
         catch (Exception $e)
         {
-            // Log error
-            log_message('error', '[FACEBOOK PHP SDK - Get session Exception] code: ' . $e->getCode().' | message: '.$e->getMessage());
+            // Log error as debug
+            log_message('debug', '[FACEBOOK PHP SDK - Get session Exception] code: ' . $e->getCode().' | message: '.$e->getMessage());
         }
 
         // If we got a session we need to exchange it for
@@ -569,6 +553,31 @@ Class Facebook {
         // Could not get a session, so return null
         return NULL;
     }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Format response
+     *
+     * @param   int      $code     Status code
+     * @param   string   $message  Detailed response message
+     * @param   array    $data     Any other data to include
+     *
+     * @return  array
+     */
+    private function response($code = 200, $message = 'Success', $data = array())
+    {
+        // Return ID
+        $response = array(
+            'code'    => $code,
+            'message' => $message,
+            'data'    => $data
+        );
+
+        return $response;
+    }
+
+    // ------------------------------------------------------------------------
 
     /**
     * Enables the use of CI super-global without having to define an extra variable.

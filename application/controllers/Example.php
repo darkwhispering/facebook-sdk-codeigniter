@@ -8,31 +8,52 @@ class Example extends CI_Controller {
 		parent::__construct();
 
 		$this->load->library('facebook');
+		$this->load->helper('url');
 	}
 
 	public function index()
 	{
-		$this->load->library('facebook');
+		$this->load->view('examples/start');
+	}
 
-		$data['user_id'] = '';
+	public function web_login()
+	{
+
 		$data['user'] = array();
 
-		if ($this->facebook->logged_in()) {
+		if ($this->facebook->logged_in())
+		{
+			$user = $this->facebook->user();
 
-			$data['user_id'] = $this->facebook->user_id();
-			$data['user'] = $this->facebook->user();
+			if ($user['code'] === 200)
+			{
+				unset($user['data']['permissions']);
+				$data['user'] = $user['data'];
+			}
 
 		}
 
-		$this->load->view('example', $data);
+		$this->load->view('examples/web', $data);
+	}
+
+	public function js_login()
+	{
+		$this->load->view('examples/js');
+	}
+
+	public function post()
+	{
+
+		header('Content-Type: application/json');
+
+		$result = $this->facebook->publish_text($this->input->post('message'));
+		echo json_encode($result);
+
 	}
 
 	public function logout()
 	{
-
 		$this->facebook->destroy_session();
-
-		$this->index();
-
+		redirect('example/web_login', redirect);
 	}
 }
