@@ -1,19 +1,19 @@
-# facebook-sdk-v4-codeigniter
-Library for integration of Facebook PHP SDK v4 with CodeIgniter 3+
+# Facebook PHP SDK v4 for CodeIgniter
+Library for integration of Facebook PHP SDK v4 with CodeIgniter 3
 
-**Version:** 1.1.0
-
-## Limitations
-Due to that I mostly used this library for backend APIs that needed to check for a valid Facebook session, the library currently only works togheter with the Facebook Javascript SDK for login atm.
-
-Support for PHP based login will be implemented in the future. Pull requests are welcome if anyone has the time before I do.
+**Version:** 2.0.0
 
 ## Requirements
 - PHP 5.4+
-- [CodeIgniter 3+](http://www.codeigniter.com/)
+- [CodeIgniter 3](http://www.codeigniter.com/)
 - CodeIgniter session library
-- [Facebook PHP SDK v4+](https://packagist.org/packages/facebook/php-sdk-v4)
+- [Facebook PHP SDK v4](https://packagist.org/packages/facebook/php-sdk-v4)
 - [Composer](https://getcomposer.org/)
+
+## Notice
+Facebook Canvas support is experimental as I have not been able to test or confirm it working. If you test it, please report back if you had success or failure.
+
+This library do not include or support all available Facebook Graph methods. Any contribution is welcome to add more. But, please read the contributing rules before submitting any pull requests.
 
 ## Installation
 1. Download the library files and add the files to your CodeIgniter installation. Only the library, config and composer.json files are required.
@@ -25,84 +25,138 @@ Support for PHP based login will be implemented in the future. Pull requests are
 5. Enjoy!
 
 ## Usage
+The library download includes a sample controller and views. The example code might not be the best or most beautiful code, but it is there to help you get started quicker.
 
-#### Check if user is logged
+## Methods
+
+#### logged_in()
+Check if user is logged
 ```php
-// Check if user is logged in. Returns true/false
 $this->facebook->logged_in();
 ```
 
-#### Check user ID
+#### login_url()
+Get login url. This method will only return a URL when using the redirect (web) login method.
 ```php
-// Get users ID. Return int
+$this->facebook->login_url();
+```
+
+#### logout_url()
+Check if user is logged. This method will only return a URL when using the redirect (web) login method.
+```php
+$this->facebook->logout_url();
+```
+
+#### destroy_session()
+Should only be used on the logout redirect url location. This method will unset the Facebook token cookie set by this library only. **This method can not be used to log out a user!**
+```php
+$this->facebook->destroy_session();
+```
+
+#### user_id()
+Check user id.
+```php
 $this->facebook->user_id();
 ```
 
-#### Check user details
+#### user()
+Check user details.
 ```php
-// Get userse details. Return array
 $this->facebook->user();
 ```
 
-#### Get post from users wall
+#### get_post()
+Get post from users wall.
 *Requires user has approved `read_stream` permission*
 ```php
 /**
-* Get single post
+* Retrieve a single post from users wall
 *
-* Requires: read_stream
+* Required permission: read_stream
 *
-* @param   int    Post ID
+* @param   int     $id   Post ID
 *
-* @return  array  Return post data
+* @return  array
 **/
-$this->facebook->get_post($post_id);
+$this->facebook->get_post($id);
 ```
 
-#### Publish a text to users wall
+#### publish_text()
+Publish a text to users wall.
 *Requires user has approved `publish_actions` permission*
 ```php
 /**
 * Publish a post to the users feed
 *
-* Requires: publish_actions
+* Required permission: publish_actions
 *
-* @param   string  Message to publish
+* @param   string  $message  Message to publish
 *
-* @return  int     ID of the created post on success
+* @return  array
 **/
 $this->facebook->publish_text($message);
 ```
 
-#### Publish a video to users wall
+#### publish_video()
+Publish a video to users wall.
+*Requires user has approved `publish_actions` permission*
 ```php
 /**
-* Publish a video to the users feed
+* Publish (upload) a video to the users feed
 *
-* Requires: publish_actions
+* Required permission: publish_actions
 *
-* @param   string  URL to file
-* @param   string  Video description text
-* @param   string  Video title text
+* @param   string  $file         Path to video file
+* @param   string  $description  Video description text
+* @param   string  $title        Video title text
 *
-* @return  int     ID of published video on success
+* @return  array
 **/
 $this->facebook->publish_video($file, $description, $title);
 ```
 
-#### Publish a image to users wall
+#### publish_image()
+Publish a image to users wall. This method support externally hosted images **only**.
+*Requires user has approved `publish_actions` permission*
 ```php
 /**
 * Publish image to users feed
+*
 * Supports externally hosted images only! No direct upload
-* to Facebook.com albums.
+* to Facebook.com albums at this time.
 *
-* Requires: publish_actions
+* Required permission: publish_actions
 *
-* @param   string  URL to image
-* @param   string  Image description text
+* @param   string  $image    URL to image
+* @param   string  $message  Image description text
 *
-* @return  int     ID of the published image on success
+* @return  array
 **/
 $this->facebook->publish_image($image, $message);
+```
+
+#### Return data format
+Most methods will return an array that include status code and message values so that you can do appropiet actions depending on if, for example, a publishing of a image was successfull or not. A list of more error codes and messages can be found [here](https://developers.facebook.com/docs/graph-api/using-graph-api/v2.3#errors)
+
+Example of returned result for `user()`
+```
+Array
+(
+    [code] => 200
+    [message] => success
+    [data] => Array
+    (
+        [id] => 3241823947947890785957
+        [email] => email@email.com
+        [first_name] => John
+        [gender] => Male
+        [last_name] => Doe
+        [link] => https://www.facebook.com/app_scoped_user_id/3241823947947890785957/
+        [locale] => en_US
+        [name] => John Doe
+        [timezone] => -7
+        [updated_time] => 2015-04-03T03:22:50+0000
+        [verified] => 1
+    )
+)
 ```
