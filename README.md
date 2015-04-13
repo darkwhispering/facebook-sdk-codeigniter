@@ -138,7 +138,7 @@ $this->facebook->publish_image($image, $message);
 #### Return data format
 Most methods will return an array that include status code and message values so that you can do appropiet actions depending on if, for example, a publishing of a image was successfull or not. A list of more error codes and messages can be found [here](https://developers.facebook.com/docs/graph-api/using-graph-api/v2.3#errors)
 
-Example of returned result
+Example of returned result for `user()`
 ```
 Array
 (
