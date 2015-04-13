@@ -13,9 +13,7 @@ Library for integration of Facebook PHP SDK v4 with CodeIgniter 3
 ## Notice
 Facebook Canvas support is experimental as I have not been able to test or confirm it working. If you test it, please report back if you had success or failure.
 
-This library do not include or support all available Facebook Graph methods. Any contribution is welcome to add more.
-
-Rules for contributions can be found [here](https://github.com/darkwhispering/facebook-sdk-v4-codeigniter/blob/2/contributing.md).
+This library do not include or support all available Facebook Graph methods. Any contribution is welcome to add more. But, please read the contributing rules before submitting any pull requests.
 
 ## Installation
 1. Download the library files and add the files to your CodeIgniter installation. Only the library, config and composer.json files are required.
