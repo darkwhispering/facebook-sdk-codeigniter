@@ -1,3 +1,6 @@
+# DEVELOPMENT VERSION. NOT GUARANTEED TO WORK. DO NOT USER FOR PRODUCTION
+
+
 # Facebook PHP SDK v4 for CodeIgniter
 Library for integration of Facebook PHP SDK v4 with CodeIgniter 3
 
