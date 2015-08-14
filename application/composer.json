@@ -1,5 +1,5 @@
 {
     "require" : {
-        "facebook/php-sdk-v4" : "4.0.*"
+        "facebook/php-sdk-v4" : "~5.0"
     }
 }

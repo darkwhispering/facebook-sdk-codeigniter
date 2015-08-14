@@ -56,7 +56,7 @@
 	<h3>Redirect login example</h3>
 
 	<p>
-		Simple example how you can use the Facebook PHP SDK v4 for CodeIgniter and the REdirect login method.
+		Simple example how you can use the Facebook PHP SDK v4 for CodeIgniter and the Web Redirect login method.
 	</p>
 
 	<p>
@@ -74,7 +74,7 @@
 		</ol>
 	</p>
 
-	<?php if ( ! $this->facebook->logged_in()) : ?>
+	<?php if ( ! $this->facebook->is_authenticated()) : ?>
 
 		<div class="login">
 			<a href="<?php echo $this->facebook->login_url(); ?>">Login</a>

@@ -103,7 +103,7 @@
 
 </div>
 
-<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script>
 	// Initiate Facebook JS SDK
 	window.fbAsyncInit = function() {
@@ -157,29 +157,31 @@
 		});
 	}
 
-	// Trigger login
-	$('.login').on('click', 'button', function() {
-		FB.login(function(){
-			loginCheck();
-		}, {scope: '<?php echo implode(",", $this->config->item('facebook_permissions')); ?>'});
+	$(function(){
+		// Trigger login
+		$('.login').on('click', 'button', function() {
+			FB.login(function(){
+				loginCheck();
+			}, {scope: '<?php echo implode(",", $this->config->item('facebook_permissions')); ?>'});
+		});
+
+		$('.form').on('submit', '.post-to-wall', function(e) {
+			e.preventDefault();
+
+			var formdata = $(this).serialize();
+
+			$.ajax({
+				url: '/example/post',
+				data: formdata,
+				type: 'POST',
+				dataType: 'json',
+				success: function(response) {
+					console.log(response);
+				}
+
+			})
+		});
 	});
-
-	$('.form').on('submit', '.post-to-wall', function(e) {
-		e.preventDefault();
-
-		var formdata = $(this).serialize();
-
-		$.ajax({
-			url: '/example/post',
-			data: formdata,
-			type: 'POST',
-			dataType: 'json',
-			success: function(response) {
-				console.log(response);
-			}
-
-		})
-	})
 
 	(function(d, s, id){
 		var js, fjs = d.getElementsByTagName(s)[0];

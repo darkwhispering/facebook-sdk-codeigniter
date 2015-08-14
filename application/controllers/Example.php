@@ -21,16 +21,13 @@ class Example extends CI_Controller {
 
 		$data['user'] = array();
 
-		if ($this->facebook->logged_in())
+		if ($this->facebook->is_authenticated())
 		{
-			$user = $this->facebook->user();
-
-			if ($user['code'] === 200)
+			$user = $this->facebook->request('get', '/me');
+			if (!isset($user['error']))
 			{
-				unset($user['data']['permissions']);
-				$data['user'] = $user['data'];
+				$data['user'] = $user;
 			}
-
 		}
 
 		$this->load->view('examples/web', $data);
@@ -46,7 +43,7 @@ class Example extends CI_Controller {
 
 		header('Content-Type: application/json');
 
-		$result = $this->facebook->publish_text($this->input->post('message'));
+		$result = $this->facebook->request('post', '/me/feed', array('message' => $this->input->post('message')));
 		echo json_encode($result);
 
 	}
