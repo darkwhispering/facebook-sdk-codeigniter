@@ -1,6 +1,8 @@
 # Facebook PHP SDK v4 for CodeIgniter
 Library for integration of Facebook PHP SDK v4 with CodeIgniter 3
 
+**New beta version available with support for latest Facebook PHP SDK v5. More details [here](https://github.com/darkwhispering/facebook-sdk-v4-codeigniter/tree/fb-sdk-v5-develop)**
+
 **Version:** 2.0.0
 
 ## Requirements
