@@ -18,9 +18,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |  facebook_graph_version        string  Set Facebook Graph version to be used.
 */
 
-$config['facebook_app_id']              = '680409738751130';
-$config['facebook_app_secret']          = '2c1cc39c1994aac6658ff57c64ea38a6';
-$config['facebook_login_type']          = 'js';
+$config['facebook_app_id']              = '';
+$config['facebook_app_secret']          = '';
+$config['facebook_login_type']          = 'web';
 $config['facebook_login_redirect_url']  = 'example/web_login';
 $config['facebook_logout_redirect_url'] = 'example/logout';
 $config['facebook_permissions']         = array('public_profile', 'publish_actions');
