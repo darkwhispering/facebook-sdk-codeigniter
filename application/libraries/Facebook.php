@@ -80,13 +80,17 @@ Class Facebook {
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Return Facebook Object
+     *
+     * @return  [type]  [description]
+     */
     public function object()
     {
         return $this->fb;
     }
 
     // ------------------------------------------------------------------------
-
     /**
     * Check if user are logged in by checking if we have a Facebook
     * session active.
@@ -97,35 +101,47 @@ Class Facebook {
     {
         // Check if user is authenticated already
         $access_token  = $this->get_access_token();
-
         if ($access_token && !$access_token->isExpired())
         {
             return $access_token;
         }
-
         return null;
     }
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Do Graph request
+     *
+     * @param   string  $method        Method type [get, post, delete]
+     * @param   string  $endpoint      Graph endpoint
+     * @param   array   $params        Optional Graph parameters
+     * @param   string  $access_token  Optional access token
+     *
+     * @return  string
+     */
     public function request($method, $endpoint, $params = array(), $access_token = null)
     {
-        if ($this->is_authenticated())
+        // Try to make the Graph request
+        try
         {
-            try
-            {
-                $response = $this->fb->{strtolower($method)}($endpoint, $params, $access_token);
-                return $response->getDecodedBody();
-            }
-            catch (Facebook\Exceptions\FacebookSDKException $e)
-            {
-                // Log error as debug
-                log_message('debug', '[FACEBOOK PHP SDK] code: ' . $e->getCode().' | message: '.$e->getMessage());
-                return array('error' => $e->getCode(), 'message' => $e->getMessage());
-            }
+            $response = $this->fb->{strtolower($method)}($endpoint, $params, $access_token);
+            return $response->getDecodedBody();
         }
-
-        return null;
+        // When Graph returns an error
+        catch(Facebook\Exceptions\FacebookResponseException $e)
+        {
+            // Log error
+            log_message('error', '[FACEBOOK PHP SDK] code: ' . $e->getCode().' | message: '.$e->getMessage());
+            return array('error' => $e->getCode(), 'message' => $e->getMessage());
+        }
+        // When validation fails or other local issues
+        catch (Facebook\Exceptions\FacebookSDKException $e)
+        {
+            // Log error
+            log_message('error', '[FACEBOOK PHP SDK] code: ' . $e->getCode().' | message: '.$e->getMessage());
+            return array('error' => $e->getCode(), 'message' => $e->getMessage());
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -169,6 +185,17 @@ Class Facebook {
     // ------------------------------------------------------------------------
 
     /**
+     * Destroy our local Facebook session
+     */
+    public function destroy_session()
+    {
+        // Remove our Facebook token from session
+        $this->session->unset_userdata('fb_access_token');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
     * Get a new access token from Facebook
     *
     * @return  mixed
@@ -190,7 +217,7 @@ Class Facebook {
             catch (Facebook\Exceptions\FacebookSDKException $e)
             {
                 // Log error as debug
-                log_message('debug', '[FACEBOOK PHP SDK] code: ' . $e->getCode().' | message: '.$e->getMessage());
+                log_message('error', '[FACEBOOK PHP SDK] code: ' . $e->getCode().' | message: '.$e->getMessage());
                 return;
             }
         }
@@ -212,6 +239,8 @@ Class Facebook {
             return $access_token;
         }
 
+        // Collect errors if any when using
+        // web redirect based login
         if ($this->config->item('facebook_login_type') === 'web')
         {
             if ($this->helper->getError())
@@ -229,11 +258,18 @@ Class Facebook {
         }
 
         // Could not get a session, so return null
-        return;
+        return null;
     }
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Exchange short lived token for a long lived token
+     *
+     * @param   object  $access_token  Short lived token
+     *
+     * @return  object
+     */
     private function long_lived_token($access_token)
     {
         // Check if the token alreayd is a long lived token
@@ -250,7 +286,7 @@ Class Facebook {
             catch (Facebook\Exceptions\FacebookSDKException $e)
             {
                 // Log error as debug
-                log_message('debug', '[FACEBOOK PHP SDK] code: ' . $e->getCode().' | message: '.$e->getMessage());
+                log_message('error', '[FACEBOOK PHP SDK] code: ' . $e->getCode().' | message: '.$e->getMessage());
                 return;
             }
         }
@@ -260,17 +296,25 @@ Class Facebook {
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Get stored access token
+     *
+     * @return  object
+     */
     private function get_access_token()
     {
-        // return $this->helper->getPersistentDataHandler()->get( 'access_token' );
         return $this->session->userdata('fb_access_token');
     }
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Store access token
+     *
+     * @param  object  $access_token  Access token object
+     */
     private function set_access_token($access_token)
     {
-        // $this->helper->getPersistentDataHandler()->set( 'access_token', $access_token );
         $this->session->set_userdata('fb_access_token', $access_token);
     }
 

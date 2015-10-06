@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title>Facebook PHP SDK v4 for CodeIgniter - Javascript SDK login example</title>
+	<title>Facebook PHP SDK for CodeIgniter - Javascript SDK login example</title>
 
 	<style>
 		body {
@@ -70,18 +70,18 @@
 
 <div class="wrapper">
 
-	<h1>Facebook PHP SDK v4 for CodeIgniter</h1>
+	<h1>Facebook PHP SDK for CodeIgniter</h1>
 	<h3>Javascript SDK login example</h3>
 
-	<p>Simple example how you can use the Facebook PHP SDK v4 for CodeIgniter togheter with the Facebook Javascript SDK and the login to facebook functionality.</p>
+	<p>Simple example how you can use the Facebook PHP SDK for CodeIgniter together with the Facebook Javascript SDK and the login to Facebook functionality.</p>
 
-	<p><strong>For this example to work, make sure you have set 'facebook_login_type' as 'js' in the config file!</strong></p>
+	<p><strong>For this example to work, make sure you have set 'facebook_login_type' as 'js' in the config file and have <i>publish_actions</i> permissions!</strong></p>
 
 	<p>
 		This example code do 4 things
 		<ol>
 			<li>Check if the user is logged in to Facebook on page load.</li>
-			<li>If user are logged in, display form to user to publish to there wall.</li>
+			<li>If user are logged in, display form to user to publish to their wall.</li>
 			<li>If user is not logged in, display login button.</li>
 			<li>Display the form after login and publish to users wall when subbmitting form without any page refresh</li>
 		</ol>
@@ -111,7 +111,8 @@
 			appId   : '<?php echo $this->config->item('facebook_app_id'); ?>', // Your app id
 			cookie  : true,  // enable cookies to allow the server to access the session
 			xfbml   : false,  // disable xfbml improves the page load time
-			version : 'v2.3' // use version 2.3
+			version : 'v2.4', // use version 2.4
+			status  : true // Check for user login status right away
 		});
 
 		FB.getLoginStatus(function(response) {
@@ -177,6 +178,14 @@
 				dataType: 'json',
 				success: function(response) {
 					console.log(response);
+					if (response.id)
+					{
+						$('.form').html('<p>Post submitted successfully.</p>');
+					}
+					else
+					{
+						$('.form').html('<p>Something happened, please try again!.</p>');
+					}
 				}
 
 			})
