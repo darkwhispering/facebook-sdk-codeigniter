@@ -99,12 +99,14 @@ Class Facebook {
     **/
     public function is_authenticated()
     {
-        // Check if user is authenticated already
-        $access_token  = $this->get_access_token();
-        if ($access_token && !$access_token->isExpired())
+        // authenticate user
+        $access_token = $this->authenticate();
+
+        if (isset($access_token) && !$access_token->isExpired())
         {
             return $access_token;
         }
+
         return null;
     }
 
