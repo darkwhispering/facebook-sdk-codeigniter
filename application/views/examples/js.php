@@ -111,7 +111,7 @@
 			appId   : '<?php echo $this->config->item('facebook_app_id'); ?>', // Your app id
 			cookie  : true,  // enable cookies to allow the server to access the session
 			xfbml   : false,  // disable xfbml improves the page load time
-			version : 'v2.4', // use version 2.4
+			version : 'v2.5', // use version 2.4
 			status  : true // Check for user login status right away
 		});
 

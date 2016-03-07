@@ -35,7 +35,7 @@ class Example extends CI_Controller {
 		if ($this->facebook->is_authenticated())
 		{
 			// User logged in, get user details
-			$user = $this->facebook->request('get', '/me');
+			$user = $this->facebook->request('get', '/me?fields=id,name,email');
 			if (!isset($user['error']))
 			{
 				$data['user'] = $user;

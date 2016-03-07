@@ -23,5 +23,5 @@ $config['facebook_app_secret']          = '';
 $config['facebook_login_type']          = 'web';
 $config['facebook_login_redirect_url']  = 'example/web_login';
 $config['facebook_logout_redirect_url'] = 'example/logout';
-$config['facebook_permissions']         = array('public_profile', 'publish_actions');
-$config['facebook_graph_version']       = 'v2.4';
+$config['facebook_permissions']         = array('public_profile', 'publish_actions', 'email');
+$config['facebook_graph_version']       = 'v2.5';
