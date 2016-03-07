@@ -15,7 +15,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |  facebook_login_redirect_url   string  URL tor redirect back to after login. Do not include domain.
 |  facebook_logout_redirect_url  string  URL tor redirect back to after login. Do not include domain.
 |  facebook_permissions          array   The permissions you need.
-|  facebook_graph_version        string  Set Facebook Graph version to be used.
+|  facebook_graph_version        string  Set Facebook Graph version to be used. Eg v2.5
 */
 
 $config['facebook_app_id']              = '';
