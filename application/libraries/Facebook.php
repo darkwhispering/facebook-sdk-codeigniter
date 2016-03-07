@@ -17,7 +17,7 @@
  * @author      Mattias Hedman
  * @license     MIT
  * @link        https://github.com/darkwhispering/facebook-sdk-v4-codeigniter
- * @version     3.0.0
+ * @version     3.0.0-beta2
  */
 
 Class Facebook {

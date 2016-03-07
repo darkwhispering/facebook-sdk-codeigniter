@@ -4,7 +4,7 @@
 
 Library for integration of Facebook PHP SDK with CodeIgniter 3+
 
-**Version:** 3.0.0-beta1
+**Version:** 3.0.0-beta2
 
 ## Requirements
 - PHP 5.4+
