@@ -24,6 +24,7 @@ use Facebook\Facebook as FB;
 use Facebook\Authentication\AccessToken;
 use Facebook\Exceptions\FacebookResponseException;
 use Facebook\Exceptions\FacebookSDKException;
+use Facebook\FacebookBatchResponse;
 use Facebook\Helpers\FacebookCanvasHelper;
 use Facebook\Helpers\FacebookJavaScriptHelper;
 use Facebook\Helpers\FacebookPageTabHelper;
@@ -43,6 +44,11 @@ Class Facebook
      * @var FacebookRedirectLoginHelper|FacebookCanvasHelper|FacebookJavaScriptHelper|FacebookPageTabHelper
      */
     private $helper;
+
+    /**
+     * @var array
+     */
+    private $batch_request_pool = [];
 
     /**
      * Facebook constructor.
@@ -136,47 +142,103 @@ Class Facebook
         }
         catch(FacebookResponseException $e)
         {
-            log_message('error', '[FACEBOOK PHP SDK] code: ' . $e->getCode().' | message: '.$e->getMessage());
-            return ['error' => $e->getCode(), 'message' => $e->getMessage()];
+            return $this->logError($e->getCode(), $e->getMessage());
         }
         catch (FacebookSDKException $e)
         {
-            log_message('error', '[FACEBOOK PHP SDK] code: ' . $e->getCode().' | message: '.$e->getMessage());
-            return ['error' => $e->getCode(), 'message' => $e->getMessage()];
+            return $this->logError($e->getCode(), $e->getMessage());
         }
     }
 
     /**
-     * Upload image or video
+     * Upload image or video to user profile
      *
-     * @param        $source
+     * @param        $path_to_file
      * @param array  $params
      * @param string $type
-     * @param string $endpoint
+     * @param null   $access_token
      *
      * @return array
      */
-    public function upload_request($source, $params = [], $type = self::UPLOAD_TYPE_IMAGE, $endpoint = '/me/videos')
+    public function user_upload_request($path_to_file, $params = [], $type = self::UPLOAD_TYPE_IMAGE, $access_token = null)
     {
         if ($type === self::UPLOAD_TYPE_IMAGE)
         {
-            $data = ['source' => $this->fb->fileToUpload($source)] + $params;
+            $data = ['source' => $this->fb->fileToUpload($path_to_file)] + $params;
+            $endpoint = '/me/photos';
         }
         elseif ($type === self::UPLOAD_TYPE_VIDEO)
         {
-            $data = ['source' => $this->fb->videoToUpload($source)] + $params;
+            $data = ['source' => $this->fb->videoToUpload($path_to_file)] + $params;
+            $endpoint = '/me/videos';
         }
         else {
-            log_message('error', '[FACEBOOK PHP SDK] code: 400 | message: Invalid upload type');
-            return ['error' => 400, 'message' => 'Invalid upload type'];
+            return $this->logError(400, 'Invalid upload type');
         }
 
         try {
             $response = $this->fb->post($endpoint, $data);
             return $response->getDecodedBody();
-        } catch(FacebookSDKException $e) {
-            log_message('error', '[FACEBOOK PHP SDK] code: ' . $e->getCode().' | message: '.$e->getMessage());
-            return ['error' => $e->getCode(), 'message' => $e->getMessage()];
+        }
+        catch(FacebookSDKException $e)
+        {
+            return $this->logError($e->getCode(), $e->getMessage());
+        }
+    }
+
+    /**
+     * Add request to batch
+     *
+     * @param       $key
+     * @param       $method
+     * @param       $endpoint
+     * @param array $params
+     * @param null  $access_token
+     */
+    public function add_to_batch_pool($key, $method, $endpoint, $params = [], $access_token = null)
+    {
+        $this->batch_request_pool = array_merge(
+            $this->batch_request_pool,
+            [$key => $this->fb->request($method, $endpoint, $params, $access_token)]
+        );
+    }
+
+    /**
+     * Remove request from batch
+     *
+     * @param $key
+     */
+    public function remove_from_batch_pool($key)
+    {
+        if (isset($this->batch_request_pool[$key]))
+        {
+            unset($this->batch_request_pool[$key]);
+        }
+    }
+
+    /**
+     * Send all request in the batch pool
+     *
+     * @return array|FacebookBatchResponse
+     */
+    public function send_batch_pool()
+    {
+        try {
+            $responses = $this->fb->sendBatchRequest($this->batch_request_pool);
+            $this->batch_request_pool = [];
+
+            $data = [];
+            foreach ($responses as $key => $response) {
+                $data[$key] = $response->getDecodedBody();
+            }
+
+            return $data;
+        }
+        catch(FacebookResponseException $e) {
+            return $this->logError($e->getCode(), $e->getMessage());
+        }
+        catch(FacebookSDKException $e) {
+            return $this->logError($e->getCode(), $e->getMessage());
         }
     }
 
@@ -236,6 +298,7 @@ Class Facebook
     private function authenticate()
     {
         if ($access_token = $this->get_access_token()){
+            $this->fb->setDefaultAccessToken($access_token);
             return $access_token;
         }
 
@@ -248,7 +311,7 @@ Class Facebook
             }
             catch (FacebookSDKException $e)
             {
-                log_message('error', '[FACEBOOK PHP SDK] code: ' . $e->getCode().' | message: '.$e->getMessage());
+                $this->logError($e->getCode(), $e->getMessage());
                 return null;
             }
 
@@ -303,7 +366,7 @@ Class Facebook
             }
             catch (FacebookSDKException $e)
             {
-                log_message('error', '[FACEBOOK PHP SDK] code: ' . $e->getCode().' | message: '.$e->getMessage());
+                $this->logError($e->getCode(), $e->getMessage());
                 return null;
             }
         }
@@ -329,6 +392,18 @@ Class Facebook
     private function set_access_token(AccessToken $access_token)
     {
         $this->session->set_userdata('fb_access_token', (string) $access_token);
+    }
+
+    /**
+     * @param $code
+     * @param $message
+     *
+     * @return array
+     */
+    private function logError($code, $message)
+    {
+        log_message('error', '[FACEBOOK PHP SDK] code: ' . $code.' | message: '.$message);
+        return ['error' => $code, 'message' => $message];
     }
 
     /**
