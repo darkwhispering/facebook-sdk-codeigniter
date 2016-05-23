@@ -107,7 +107,7 @@ Upload a image or video file to a users profile.
 | --- | --- | --- |
 | $path_to_file | string | Path to file on server or external URL |
 | $params | array | Array with extra graph parameters. This is optional. |
-| $type | string | Type of upload. [image|video] This is optional, Default: image |
+| $type | string | Type of upload. [image, video] This is optional, Default: image |
 | $access_token | string | Optional access token. |
 
 ##### Example
@@ -115,7 +115,7 @@ Upload a image or video file to a users profile.
 Short exampel to upload a file from the server.
 
 ```php
-$response = $this->facebook->user_upload_request('/path/to/file.jpg', ['message' => 'This is a test upload']);
+$this->facebook->user_upload_request('/path/to/file.jpg', ['message' => 'This is a test upload']);
 ```
 
 ##### Notes
@@ -159,6 +159,8 @@ $this->facebook->remove_from_batch_pool('user-profile', 'get', '/me');
 
 Send the batch pool requests.
 
+Example on how batch requests works in the [Facebook documentation](https://developers.facebook.com/docs/php/howto/example_batch_request).
+
 ##### Example
 
 ```php
@@ -182,7 +184,7 @@ foreach ($responses as $key => $data)
 #### object()
 If you want to work directly with the Facebook\Facebook service class, you can do so. The `object()` method will return the full object of `new Facebook\Facebook` service class that you can use however you would like.
 
-> *The library will still take care of the loading of the SDK, check user authentication and load configured login helper.*
+> *The library will still take care of the loading of the SDK and load configured login helper.*
 
 Documentation for Facebook\Facebook service class can be found [here](https://developers.facebook.com/docs/php/Facebook/5.0.0) and full SDK reference list [here](https://developers.facebook.com/docs/php/api/5.0.0).
 

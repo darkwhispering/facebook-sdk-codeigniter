@@ -1,5 +1,17 @@
 # Changelog for Facebook PHP SDK for CodeIgniter
 
+#### 3.0.0 (May 2016)
+- NEW: New config setting `facebook_auth_on_load` to activate on page load authorization (try to get valid access token).
+- NEW: New way of checking if access token in session is still valid. Should be more reliable.
+- NEW: New `user_upload_request()` method. Supports upload of images and video to a users profile.
+- NEW: New `add_to_batch_pool()` method. Add multiple Graph request to the pool and send all in one go later.
+- NEW: New `remove_from_batch_pool()` method. Remove a graph request from the batch pool.
+- NEW: New `send_batch_pool()` method. Send all Graph request in the pool.
+- UPDATE: Default graph version in config now v2.6
+- UPDATE: Cleanup of the code
+- CHANGE: Page load authentication (try to get valid access token) made optional and off as default. Activate with new config settings.
+
+
 #### 3.0.0-b02 (March 2016)
 - FIX: Solved authentication problems by using `authenticate` method in `is_authenticated` method instead of checking only local session.
 - UPDATE: Teested with Facebook PHP SDK v5.1.2
