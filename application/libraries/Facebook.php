@@ -17,7 +17,7 @@
  * @author      Mattias Hedman
  * @license     MIT
  * @link        https://github.com/darkwhispering/facebook-sdk-v4-codeigniter
- * @version     3.0.0-beta2
+ * @version     3.0.0
  */
 
 use Facebook\Facebook as FB;
@@ -96,7 +96,6 @@ Class Facebook
         $this->authenticate();
     }
 
-
     /**
      * @return FB
      */
@@ -172,12 +171,14 @@ Class Facebook
             $data = ['source' => $this->fb->videoToUpload($path_to_file)] + $params;
             $endpoint = '/me/videos';
         }
-        else {
+        else
+        {
             return $this->logError(400, 'Invalid upload type');
         }
 
-        try {
-            $response = $this->fb->post($endpoint, $data);
+        try
+        {
+            $response = $this->fb->post($endpoint, $data, $access_token);
             return $response->getDecodedBody();
         }
         catch(FacebookSDKException $e)
@@ -223,21 +224,25 @@ Class Facebook
      */
     public function send_batch_pool()
     {
-        try {
+        try
+        {
             $responses = $this->fb->sendBatchRequest($this->batch_request_pool);
             $this->batch_request_pool = [];
 
             $data = [];
-            foreach ($responses as $key => $response) {
+            foreach ($responses as $key => $response)
+            {
                 $data[$key] = $response->getDecodedBody();
             }
 
             return $data;
         }
-        catch(FacebookResponseException $e) {
+        catch(FacebookResponseException $e)
+        {
             return $this->logError($e->getCode(), $e->getMessage());
         }
-        catch(FacebookSDKException $e) {
+        catch(FacebookSDKException $e)
+        {
             return $this->logError($e->getCode(), $e->getMessage());
         }
     }
@@ -297,7 +302,10 @@ Class Facebook
      */
     private function authenticate()
     {
-        if ($access_token = $this->get_access_token()){
+        $access_token = $this->get_access_token();
+
+        if ($access_token && $this->get_expire_time() > (time() + 30) || $access_token && !$this->get_expire_time())
+        {
             $this->fb->setDefaultAccessToken($access_token);
             return $access_token;
         }
@@ -320,6 +328,7 @@ Class Facebook
             {
                 $access_token = $this->long_lived_token($access_token);
 
+                $this->set_expire_time($access_token->getExpiresAt());
                 $this->set_access_token($access_token);
                 $this->fb->setDefaultAccessToken($access_token);
 
@@ -344,7 +353,7 @@ Class Facebook
             }
         }
 
-        return null;
+        return $access_token;
     }
 
     /**
@@ -391,7 +400,25 @@ Class Facebook
      */
     private function set_access_token(AccessToken $access_token)
     {
-        $this->session->set_userdata('fb_access_token', (string) $access_token);
+        $this->session->set_userdata('fb_access_token', $access_token->getValue());
+    }
+
+    /**
+     * @return mixed
+     */
+    private function get_expire_time()
+    {
+        return $this->session->userdata('fb_expire');
+    }
+
+    /**
+     * @param DateTime $time
+     */
+    private function set_expire_time(DateTime $time = null)
+    {
+        if ($time) {
+            $this->session->set_userdata('fb_expire', $time->getTimestamp());
+        }
     }
 
     /**
@@ -410,7 +437,7 @@ Class Facebook
      * Enables the use of CI super-global without having to define an extra variable.
      * I can't remember where I first saw this, so thank you if you are the original author.
      *
-     * Copied from the Ion Auth library (http://benedmunds.com/ion_auth/)
+     * Borrowed from the Ion Auth library (http://benedmunds.com/ion_auth/)
      *
      * @param $var
      *

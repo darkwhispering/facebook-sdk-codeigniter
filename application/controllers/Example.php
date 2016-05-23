@@ -35,17 +35,11 @@ class Example extends CI_Controller {
 		if ($this->facebook->is_authenticated())
 		{
 			// User logged in, get user details
-//			$user = $this->facebook->request('get', '/me?fields=id,name,email');
-//			if (!isset($user['error']))
-//			{
-//				$data['user'] = $user;
-//			}
-
-			$this->facebook->add_to_batch_pool('user', 'get', '/me?fields=id,name');
-			$this->facebook->add_to_batch_pool('user2', 'get', '/me?fields=email');
-			$response = $this->facebook->send_batch_pool();
-
-			print_r($response);
+			$user = $this->facebook->request('get', '/me?fields=id,name,email');
+			if (!isset($user['error']))
+			{
+				$data['user'] = $user;
+			}
 
 		}
 

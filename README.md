@@ -162,14 +162,27 @@ Send the batch pool requests.
 ##### Example
 
 ```php
+$this->facebook->send_batch_pool();
+```
+
+##### Full example
+
+```php
+$this->facebook->add_to_batch_pool('user-profile', 'get', '/me');
+$this->facebook->remove_from_batch_pool('user-email', 'get', '/me?fields=email');
 $responses = $this->facebook->send_batch_pool();
-print_r($responses);
+
+foreach ($responses as $key => $data)
+{
+	print_r($key);
+	print_r($data);
+}
 ```
 
 #### object()
 If you want to work directly with the Facebook\Facebook service class, you can do so. The `object()` method will return the full object of `new Facebook\Facebook` service class that you can use however you would like.
 
-> *The library will still take care of the laoding of the SDK, check user authentication and load configured login helper.*
+> *The library will still take care of the loading of the SDK, check user authentication and load configured login helper.*
 
 Documentation for Facebook\Facebook service class can be found [here](https://developers.facebook.com/docs/php/Facebook/5.0.0) and full SDK reference list [here](https://developers.facebook.com/docs/php/api/5.0.0).
 
