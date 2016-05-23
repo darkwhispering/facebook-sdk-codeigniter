@@ -67,7 +67,18 @@ class Example extends CI_Controller {
 	{
 		header('Content-Type: application/json');
 
-		$result = $this->facebook->request('post', '/me/feed', array('message' => $this->input->post('message')));
+		if (!$access_token = $this->facebook->is_authenticated())
+		{
+			throw new Exception('No valid access token found');
+		}
+
+		$result = $this->facebook->request(
+			'post',
+			'/me/feed',
+			['message' => $this->input->post('message')],
+			$access_token
+		);
+
 		echo json_encode($result);
 	}
 
