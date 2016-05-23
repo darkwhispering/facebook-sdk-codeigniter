@@ -92,8 +92,11 @@ Class Facebook
                 break;
         }
 
-        // Try and authenticate the user right away
-        $this->authenticate();
+        if ($this->config->item('facebook_auth_on_load') === TRUE)
+        {
+            // Try and authenticate the user right away (aka, get valid access token)
+            $this->authenticate();
+        }
     }
 
     /**
