@@ -57,7 +57,7 @@
 
 	<p>Library for integration of Facebook PHP SDK with CodeIgniter 3+</p>
 
-	<p><strong>Version:</strong> 3.0.0-beta2</p>
+	<p><strong>Version:</strong> 3.0.0</p>
 
 	<p>Documentation for this library can be found <a href="https://github.com/darkwhispering/facebook-sdk-v4-codeigniter/" target="_blank">here</a>, and documentation about Facebook PHP SDK v5 can be found <a href="https://developers.facebook.com/docs/php/gettingstarted/5.0.0" target="_blank">here</a>.</p>
 
