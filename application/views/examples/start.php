@@ -59,7 +59,7 @@
 
 	<p><strong>Version:</strong> 3.0.0</p>
 
-	<p>Documentation for this library can be found <a href="https://github.com/darkwhispering/facebook-sdk-v4-codeigniter/" target="_blank">here</a>, and documentation about Facebook PHP SDK v5 can be found <a href="https://developers.facebook.com/docs/php/gettingstarted/5.0.0" target="_blank">here</a>.</p>
+	<p>Documentation for this library can be found <a href="https://github.com/darkwhispering/facebook-sdk-codeigniter" target="_blank">here</a>, and documentation about Facebook PHP SDK v5 can be found <a href="https://developers.facebook.com/docs/php/gettingstarted/5.0.0" target="_blank">here</a>.</p>
 
 	<div class="examples">
 		<a href="/example/web_login" class="web">Redirect Login<br/>Example</a>
