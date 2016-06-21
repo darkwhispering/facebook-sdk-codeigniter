@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Facebook PHP SDK v4 for CodeIgniter - Redirect login example</title>
+    <title>Facebook PHP SDK for CodeIgniter - Redirect login example</title>
 
     <style>
         body {
@@ -52,11 +52,11 @@
 
 <div class="wrapper">
 
-    <h1>Facebook PHP SDK v4 for CodeIgniter</h1>
+    <h1>Facebook PHP SDK for CodeIgniter</h1>
     <h3>Redirect login example</h3>
 
     <p>
-        Simple example how you can use the Facebook PHP SDK v4 for CodeIgniter and the Web Redirect login method.
+        Simple example how you can use the Facebook PHP SDK for CodeIgniter and the Web Redirect login method.
     </p>
 
     <p>
