@@ -20,6 +20,8 @@ Facebook *Canvas* and *Page Tab* support is experimental as I have not been able
 
 ## Installation
 
+**It is very important that you follow the installation steps closely to get the library and Facebook SDK to work**
+
 1. Download the library files and add the files to your CodeIgniter installation. Only the library, config and composer.json files are required.
 1. In your CodeIgniter `/application/config/config.php` file, set `$config['composer_autoload']` to `TRUE`. [Read more](https://www.codeigniter.com/user_guide/general/autoloader.html)
 2. In your CodeIgniter `/application/config/config.php` file, configure the `Session Variables` section. [Read more](https://www.codeigniter.com/user_guide/libraries/sessions.html)
