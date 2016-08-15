@@ -1,4 +1,4 @@
-Contributing to Facebook PHP SDK v4 for CodeIgniter 3
+Contributing to Facebook PHP SDK for CodeIgniter 3
 ===================================
 
 First of all thanks for your interest. But contributing to this repo has some requirements.
