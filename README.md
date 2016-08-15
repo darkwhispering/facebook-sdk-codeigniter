@@ -152,7 +152,7 @@ Add a request to the batch pool to be sent later in batch request.
 ##### Example
 
 ```php
-$this->facebook->remove_from_batch_pool('user-profile', 'get', '/me');
+$this->facebook->remove_from_batch_pool('user-profile');
 ```
 
 #### send_batch_pool()
@@ -171,7 +171,7 @@ $this->facebook->send_batch_pool();
 
 ```php
 $this->facebook->add_to_batch_pool('user-profile', 'get', '/me');
-$this->facebook->remove_from_batch_pool('user-email', 'get', '/me?fields=email');
+$this->facebook->remove_from_batch_pool('user-email');
 $responses = $this->facebook->send_batch_pool();
 
 foreach ($responses as $key => $data)
