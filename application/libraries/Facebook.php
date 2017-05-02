@@ -253,9 +253,12 @@ Class Facebook
     /**
      * Generate Facebook login url for Facebook Redirect Login (web)
      *
+     * @param string    $reRequest
+     *     If the permissions should be re-asked (if they were denied before)
+     * 
      * @return  string
      */
-    public function login_url()
+    public function login_url($reRequest = false)
     {
         // Login type must be web, else return empty string
         if ($this->config->item('facebook_login_type') != 'web')
@@ -263,10 +266,20 @@ Class Facebook
             return '';
         }
 
-        return $this->helper->getLoginUrl(
-            base_url() . $this->config->item('facebook_login_redirect_url'),
-            $this->config->item('facebook_permissions')
-        );
+        if ($reRequest)
+        {
+            return $this->helper->getReRequestUrl(
+                base_url() . $this->config->item('facebook_login_redirect_url'),
+                $this->config->item('facebook_permissions')
+            );
+        }
+        else
+        {
+            return $this->helper->getLoginUrl(
+                base_url() . $this->config->item('facebook_login_redirect_url'),
+                $this->config->item('facebook_permissions')
+            );
+        }
     }
 
     /**
