@@ -1,3 +1,5 @@
+![Not maintained](https://img.shields.io/badge/maintained%3F-no!-red.svg?style=flat)
+
 # Facebook PHP SDK for CodeIgniter
 
 Library for integration of Facebook PHP SDK v5+ with CodeIgniter 3+
