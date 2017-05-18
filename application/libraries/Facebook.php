@@ -126,6 +126,34 @@ Class Facebook
     }
 
     /**
+     * Do GET Graph request
+     *
+     * @param       $endpoint
+     * @param array $params
+     * @param null  $access_token
+     *
+     * @return array
+     */
+    public function get($endpoint, $params = [], $access_token = null)
+    {
+        return $this->request('get', $endpoint, $params, $access_token);
+    }
+
+    /**
+     * Do POST Graph request
+     *
+     * @param       $endpoint
+     * @param array $params
+     * @param null  $access_token
+     *
+     * @return array
+     */
+    public function post($endpoint, $params = [], $access_token = null)
+    {
+        return $this->request('post', $endpoint, $params, $access_token);
+    }
+
+    /**
      * Do Graph request
      *
      * @param       $method
